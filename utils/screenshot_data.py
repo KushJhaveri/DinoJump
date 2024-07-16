@@ -1,3 +1,8 @@
+###############################################################
+### VIEW DINO WEBSITE AT: offline-dino-game.firebaseapp.com ###
+###     REMENBER TO USE A CHROME CORE BROWSER TO OPEN IT    ###
+###############################################################
+
 import time
 
 import pygetwindow as gw
@@ -8,6 +13,9 @@ import win32gui
 import threading
 import numpy as np
 import os
+
+
+window_title = 'Dinosaur Game - Opera'  # Change this to your window's title
 
 
 # Function to get the title of the active window
@@ -67,9 +75,6 @@ class Screenshot():
             if len('1') == 1:
                 print(1)
 
-
-
-window_title = 'Dinosaur Game - Opera'  # Change this to your window's title
 
 # Find the window by title
 window = gw.getWindowsWithTitle(window_title)[0]
