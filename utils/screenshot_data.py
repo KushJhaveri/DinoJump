@@ -105,7 +105,7 @@ sleep(3)
 # Main logic
 if active_window_title == window_title:
     num_threads = 10  # Adjust based on how many threads you want to use
-    sleep_interval = 1.2  # The sleep interval for all threads
+    sleep_interval = 0.1  # The sleep interval between EACH threads (secs)
     Threading = Screenshot(10, 1.2)
     Threading.start()
 
