@@ -1,0 +1,5 @@
+https://medium.com/intro-to-artificial-intelligence/deep-q-network-dqn-applying-neural-network-as-a-functional-approximation-in-q-learning-6ffe3b0a9062
+
+https://www.reddit.com/r/reinforcementlearning/comments/1555wgi/dqn_loss_increasing_and_rewards_decreasing/
+
+https://dilithjay.com/blog/ddqn
