@@ -86,7 +86,7 @@ class Dinosaur:
             self.dino_jump = False
 
             self.jump_velocity = Dinosaur.MAX_JUMP_VELOCITY
-
+            
     def run(self):
         self.image = Dinosaur.RUNNING_SPRITES[self.step_index // 5]
         self.sprite_rect = self.image.get_rect()
@@ -143,7 +143,9 @@ class Background:
 
 class Score:
     FONT = pygame.font.Font("freesansbold.ttf", 20)
-    game_speed = 10
+    STARTING_GAME_SPEED = 10
+    game_speed = STARTING_GAME_SPEED
+    MAXIMUM_GAME_SPEED = 15
     points = 0
 
     @classmethod
@@ -153,7 +155,7 @@ class Score:
 
     @classmethod
     def increase_game_speed(cls):
-        if Score.points % 100 == 0:
+        if Score.points % 100 == 0 and Score.game_speed < Score.MAXIMUM_GAME_SPEED:
             Score.game_speed += 1
     
     @classmethod
@@ -164,7 +166,6 @@ class Score:
         text_rect = text.get_rect()
         text_rect.center = (1000, 40)
         WINDOW.blit(text, text_rect)
-
 
 class Obstacle:
     def __init__(self, image, type):
@@ -198,7 +199,6 @@ class SmallCactus(Obstacle):
         self.rect.width = int(self.rect.width * SmallCactus.HIT_BOX_SCALING)
         self.rect.height = int(self.rect.height * SmallCactus.HIT_BOX_SCALING)
         
-
 class LargeCactus(Obstacle):
     HIT_BOX_SCALING = 0.7
 
@@ -215,7 +215,6 @@ class LargeCactus(Obstacle):
         self.rect.width = int(self.rect.width * LargeCactus.HIT_BOX_SCALING)
         self.rect.height = int(self.rect.height * LargeCactus.HIT_BOX_SCALING)
         
-    
 class Bird(Obstacle):
     HIT_BOX_SCALING = 0.85
 
@@ -260,16 +259,14 @@ def add_obstacles():
                 obstacles.append(Bird())
 
 FPS = 60
-
 clock = pygame.time.Clock()
+
 player = Dinosaur()
 cloud = Cloud()
 background = Background()
 Score.reset()
-obstacles = []
 
 def main():
-    global obstacles
     run = True
     death_count = 0
     
@@ -305,11 +302,9 @@ def main():
             obstacle.draw()
             obstacle.update()
             if player.sprite_rect.colliderect(obstacle.rect):
-                death_count += 1 
+                death_count += 1
+                GameData.set_ending_game_speed(Score.game_speed)
                 run = False 
 
         clock.tick(FPS)
         pygame.display.update()
-
-for i in range(10): 
-    main() 
