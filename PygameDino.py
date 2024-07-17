@@ -165,11 +165,12 @@ class Score:
         text_rect.center = (1000, 40)
         WINDOW.blit(text, text_rect)
 
+
 class Obstacle:
     def __init__(self, image, type):
-        self.image = image
+        self.image = image[self.type]
         self.type = type
-        self.rect = self.image[self.type].get_rect()
+        self.rect = self.image.get_rect()
         self.rect.x = WINDOW_WIDTH
     
     def update(self):
@@ -178,9 +179,12 @@ class Obstacle:
             obstacles.remove(self)
 
     def draw(self):
-        WINDOW.blit(self.image[self.type], self.rect)
+        WINDOW.blit(self.image, self.rect)
+        pygame.draw.rect(WINDOW, (255, 0, 0), self.rect, 2)
 
 class SmallCactus(Obstacle):
+    HIT_BOX_SCALING = 0.85
+
     SPRITES = (
         pygame.image.load(os.path.join("SmallCactus1.png")),
         pygame.image.load(os.path.join("SmallCactus2.png")),
@@ -191,8 +195,13 @@ class SmallCactus(Obstacle):
         self.type = random.randint(0, 2)
         super().__init__(SmallCactus.SPRITES, self.type)
         self.rect.y = 325
+        self.rect.width = int(self.rect.width * SmallCactus.HIT_BOX_SCALING)
+        self.rect.height = int(self.rect.height * SmallCactus.HIT_BOX_SCALING)
+        
 
 class LargeCactus(Obstacle):
+    HIT_BOX_SCALING = 0.7
+
     SPRITES = (
         pygame.image.load(os.path.join("LargeCactus1.png")),
         pygame.image.load(os.path.join("LargeCactus2.png")),
@@ -203,8 +212,13 @@ class LargeCactus(Obstacle):
         self.type = random.randint(0, 2)
         super().__init__(LargeCactus.SPRITES, self.type)
         self.rect.y = 300
+        self.rect.width = int(self.rect.width * LargeCactus.HIT_BOX_SCALING)
+        self.rect.height = int(self.rect.height * LargeCactus.HIT_BOX_SCALING)
+        
     
 class Bird(Obstacle):
+    HIT_BOX_SCALING = 0.85
+
     SPRITES = (
         pygame.image.load(os.path.join("Bird1.png")),
         pygame.image.load(os.path.join("Bird2.png"))
@@ -214,6 +228,8 @@ class Bird(Obstacle):
         self.type = 0
         super().__init__(Bird.SPRITES, self.type)
         self.rect.y = random.randint(200, 300)
+        self.rect.width = int(self.rect.width * Bird.HIT_BOX_SCALING)
+        self.rect.height = int(self.rect.height * Bird.HIT_BOX_SCALING)
         self.index = 0
     
     def draw(self):
@@ -223,19 +239,25 @@ class Bird(Obstacle):
         self.index += 1
 
 obstacles = []
-
+    
 def add_obstacles():
-    if len(obstacles) == 0 or obstacles[-1].rect.x < 0:
-        random_obstacle = random.randint(0, 2)
+    global obstacles
+    min_distance = max(400, 700 - Score.points) 
+    
+    # Ensure there are at most 3 obstacles on the field
+    if len(obstacles) < 3:
+        # Check spacing between last obstacle and right edge of window
+        if len(obstacles) == 0 or obstacles[-1].rect.x < WINDOW_WIDTH - min_distance:
+            random_obstacle = random.randint(0, 2)
 
-        if random_obstacle == 0:
-            obstacles.append(SmallCactus())
-        
-        elif random_obstacle == 1:
-            obstacles.append(LargeCactus())
-        
-        else:
-            obstacles.append(Bird())
+            if random_obstacle == 0:
+                obstacles.append(SmallCactus())
+            
+            elif random_obstacle == 1:
+                obstacles.append(LargeCactus())
+            
+            else:
+                obstacles.append(Bird())
 
 FPS = 60
 
