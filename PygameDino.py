@@ -243,7 +243,7 @@ obstacles = []
 def add_obstacles():
     global obstacles
     min_distance = max(400, 700 - Score.points) 
-    
+
     # Ensure there are at most 3 obstacles on the field
     if len(obstacles) < 3:
         # Check spacing between last obstacle and right edge of window
@@ -261,15 +261,22 @@ def add_obstacles():
 
 FPS = 60
 
+clock = pygame.time.Clock()
+player = Dinosaur()
+cloud = Cloud()
+background = Background()
+Score.reset()
+obstacles = []
+
 def main():
     global obstacles
     run = True
     death_count = 0
     
-    clock = pygame.time.Clock()
-    player = Dinosaur()
-    cloud = Cloud()
-    background = Background()
+    clock = pygame.time.Clock() 
+    player.__init__() 
+    cloud.__init__() 
+    background.__init__()
     Score.reset()
     obstacles = []
 
@@ -298,44 +305,11 @@ def main():
             obstacle.draw()
             obstacle.update()
             if player.sprite_rect.colliderect(obstacle.rect):
-                death_count += 1
-                menu(death_count)
+                death_count += 1 
+                run = False 
 
         clock.tick(FPS)
         pygame.display.update()
 
-def menu(death_count):
-    run = True
-    while run:
-        WINDOW.fill((255, 255, 255))
-        font = pygame.font.Font("freesansbold.ttf", 30)
-
-        if death_count == 0:
-            text = font.render("Press any Key to Start", True, (0, 0, 0))
-       
-        elif death_count > 0:
-            text = font.render("Press any Key to Restart", True, (0, 0, 0))
-            score = font.render("Your Score: " + str(Score.points), True, (0, 0, 0))
-            score_rect = score.get_rect()
-            score_rect.center = (WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 50)
-            WINDOW.blit(score, score_rect)
-
-        text_rect = text.get_rect()
-        text_rect.center = (WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)
-        WINDOW.blit(text, text_rect)
-        
-        WINDOW.blit(Dinosaur.RUNNING_SPRITES[0], (WINDOW_WIDTH // 2 - 20, WINDOW_HEIGHT // 2 - 140))
-        pygame.display.update()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                run = False 
-                quit()
-            
-            elif event.type == pygame.KEYDOWN:
-                run = False  # Exit menu loop
-                main()
-                break
-
-menu(death_count = 0)
+for i in range(10): 
+    main() 
