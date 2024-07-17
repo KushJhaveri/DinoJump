@@ -67,13 +67,17 @@ class Screenshot():
         sleep(start_delay)
 
         while not self.stop_event.is_set():
+            t = time.time()
             temp = np.append(np.array(pyautogui.screenshot(region=(left, tops[0], width, height)).convert('L')),
                              np.array(pyautogui.screenshot(region=(left, tops[1], width, height)).convert('L')))
             output = np.append(temp, np.array(pyautogui.screenshot(region=(left, tops[2], width, height)).convert('L')))
-            
-            # THIS IS JUST A PLACEHOLDER
-            if len('1') == 1:
-                print(1)
+
+            t = time.time() - t
+            sleep(0.7*interval - t)
+            t_1 = time.time()
+            print(t)
+            t_1 = time.time() - t_1
+            sleep(0.3*interval - t_1)
 
 
 # Find the window by title
