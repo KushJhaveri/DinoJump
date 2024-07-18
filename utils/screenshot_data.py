@@ -9,7 +9,6 @@ from time import sleep
 import win32gui
 import threading
 import numpy as np
-import os
 import mss
 
 print('IM RUNNING')
