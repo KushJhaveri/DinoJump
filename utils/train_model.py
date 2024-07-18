@@ -1,31 +1,32 @@
-
 class GameData(): 
-    ENDING_GAME_SPEED = None
     
-    @classmethod 
-    def min_max_normalize(cls, number, minimum_value, maximum_value):
+    def __init__(self): 
+        self.DISTANCES = [] 
+        self.OBSTACLE_HEIGHTS = [] 
+        self.GAME_SPEEDS = [] 
+    
+    def update(self) -> None: 
+        self.DISTANCES.append(self.get_distances())
+        self.OBSTACLE_HEIGHTS.append(self.get_obstacle_heights())
+        self.GAME_SPEEDS.append(Score.game_speed)
+
+    def normalize_data(self) -> None: 
+        self.NORMALIZED_DISTANCES = GameData.min_max_normalize_collection(self.DISTANCES)
+        self.NORMALIZED_OBSTACLE_HEIGHTS = GameData.min_max_normalize_collection(self.OBSTACLE_HEIGHTS)
+        self.NORMALIZED_GAME_SPEEDS = GameData.min_max_normalize_collection(self.NORMALIZED_GAME_SPEEDS)
+
+    def get_distances(cls) -> tuple[float]: 
+        return (abs(player.sprite_rect.x - obstacle.rect.x) for obstacle in obstacles)
+        
+    def get_obstacle_heights(cls) -> tuple[float]: 
+        return (obstacle.rect.height for obstacle in obstacles)  
+    
+    @classmethod
+    def min_max_normalize(cls, number, minimum_value, maximum_value) -> float:
         return (number - minimum_value) / (maximum_value - minimum_value)
-
-    @classmethod 
-    def get_normalized_distances(cls) -> tuple[float]: 
-        distances = (abs(player.sprite_rect.x - obstacle.rect.x) for obstacle in obstacles) 
-        return (GameData.min_max_normalize(distance, min(distances), max(distances)) for distance in distances)    
-
-    @classmethod 
-    def get_normalized_obstacle_heights(cls) -> tuple[float]: 
-        heights = (obstacle.rect.height for obstacle in obstacles)  
-        return (GameData.min_max_normalize(height, min(height), max(height)) for height in heights)
-    
-    @classmethod 
-    def get_obstacle_velocity(cls) -> float: 
-        return Score.game_speed
     
     @classmethod
-    def set_ending_game_speed(cls, ending_game_speed: int) -> None: 
-        GameData.ENDING_GAME_SPEED = ending_game_speed 
-    
-    @classmethod
-    def get_normalized_game_speeds(cls) -> tuple[float]: 
-        game_speeds = range(Score.STARTING_GAME_SPEED, GameData.ENDING_GAME_SPEED + 1)
-        return (GameData.min_max_normalize(game_speed, Score.STARTING_GAME_SPEED, GameData.ENDING_GAME_SPEED) 
-                for game_speed in game_speeds)
+    def min_max_normalize_collection(cls, collection) -> list[float]: 
+        min_value = min(collection)
+        max_value = max(collection)
+        return (GameData.min_max_normalize(value, min_value, max_value) for value in collection)
