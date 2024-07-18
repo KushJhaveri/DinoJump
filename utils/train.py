@@ -9,7 +9,7 @@ import pygetwindow as gw
 
 from time import sleep
 from pynput.keyboard import Key, Controller
-from get_data_multi_thread import Screenshot
+from screenshot_data import Screenshot
 
 # METADATA
 fps = 10
