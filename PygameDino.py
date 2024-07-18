@@ -259,14 +259,17 @@ def add_obstacles():
                 obstacles.append(Bird())
 
 FPS = 60
-clock = pygame.time.Clock()
 
-player = Dinosaur()
-cloud = Cloud()
-background = Background()
-Score.reset()
+def reset_enviorment() -> None: 
+    global clock, player, cloud, background, game_data
+    clock = pygame.time.Clock()
+    player = Dinosaur()
+    cloud = Cloud()
+    background = Background()
+    Score.reset()
+    game_data = GameData()
 
-def main():
+def main() -> None:
     run = True
     death_count = 0
     
@@ -276,6 +279,7 @@ def main():
     background.__init__()
     Score.reset()
     obstacles = []
+    game_data.__init__()
 
     while run:
         for event in pygame.event.get():
@@ -295,7 +299,8 @@ def main():
 
         Score.increase_game_speed()
         Score.manage_points()
-        
+        game_data.update()
+
         add_obstacles()
 
         for obstacle in obstacles:
@@ -303,7 +308,7 @@ def main():
             obstacle.update()
             if player.sprite_rect.colliderect(obstacle.rect):
                 death_count += 1
-                GameData.set_ending_game_speed(Score.game_speed)
+                game_data.normalize_data()
                 run = False 
 
         clock.tick(FPS)
