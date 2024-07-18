@@ -1,0 +1,139 @@
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import torch.nn.functional as F
+
+from GameClasses import Score, FPS, DinosaurActions, start_environment, reset_enviornment, main, obstacles, player 
+import GameData 
+
+import numpy as np
+import random 
+
+STATE_DIMENSIONS = 3 # Input information from GameData
+ACTION_DIMENSIONS = len(DinosaurActions) # Possible actions from Dinosaur class 
+TARGET_UPDATE_INTERVAL = FPS 
+
+class QNetwork(nn.Module):
+    def __init__(self, input_size, output_size):
+        super(QNetwork, self).__init__()
+        self.fc1 = nn.Linear(input_size, 128)
+        self.fc2 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(64, output_size)
+
+    def forward(self, x):
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
+
+class RLAgent:
+    def __init__(self, state_dim, action_dim, learning_rate=0.001, gamma=0.99, epsilon=1.0, epsilon_decay=0.995, epsilon_min=0.01):
+        self.state_dim = state_dim
+        self.action_dim = action_dim
+        self.epsilon = epsilon
+        self.epsilon_decay = epsilon_decay
+        self.epsilon_min = epsilon_min
+        self.gamma = gamma
+
+        # Initialize Q-networks
+        self.q_network = QNetwork(state_dim, action_dim)
+        self.target_q_network = QNetwork(state_dim, action_dim)
+        self.target_q_network.load_state_dict(self.q_network.state_dict())
+        self.target_q_network.eval()
+
+        self.optimizer = optim.Adam(self.q_network.parameters(), lr=learning_rate)
+
+    def select_action(self, state):
+        # Epsilon-greedy action selection
+        if np.random.rand() < self.epsilon:
+            return random.choice(list(range(self.action_dim)))
+        else:
+            with torch.no_grad():
+                state = torch.FloatTensor(state).unsqueeze(0)
+                q_values = self.q_network(state)
+                return q_values.argmax().item()
+
+    def train(self, state, action, reward, next_state, done):
+        state = torch.FloatTensor(state).unsqueeze(0)
+        action = torch.LongTensor([action])
+        next_state = torch.FloatTensor(next_state).unsqueeze(0)
+        reward = torch.FloatTensor([reward])
+        done = torch.FloatTensor([int(done)])
+
+        # Q-value prediction for current state-action pair
+        q_value = self.q_network(state).gather(1, action.unsqueeze(1))
+
+        # Q-value prediction for next state (target Q-value)
+        next_q_value = self.target_q_network(next_state).max(1)[0].unsqueeze(1)
+        target_q_value = reward + (1 - done) * self.gamma * next_q_value
+
+        # Compute Huber loss
+        loss = F.smooth_l1_loss(q_value, target_q_value.detach())
+
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+
+        # Update epsilon for epsilon-greedy exploration
+        if self.epsilon > self.epsilon_min:
+            self.epsilon *= self.epsilon_decay
+
+    def update_target_network(self):
+        # Update target network parameters
+        self.target_q_network.load_state_dict(self.q_network.state_dict())
+
+# Main RL training function
+def train_rl():
+    rl_agent = RLAgent(STATE_DIMENSIONS, ACTION_DIMENSIONS)
+
+    running = True
+    iteration = 0
+    episode = 0 
+
+    start_environment()
+
+    while running:
+        reset_enviornment() 
+        main() 
+        state = get_game_state()
+        action = rl_agent.select_action(state)
+        get_action(action)
+        next_state = get_game_state()
+        reward = calculate_reward()
+        done = check_game_done()
+
+        rl_agent.train(state, action, reward, next_state, done)
+
+        # Update target network periodically
+        if iteration % TARGET_UPDATE_INTERVAL == 0:
+            rl_agent.update_target_network()
+
+        iteration += 1
+   
+    episode += 1 
+
+
+def get_game_state():
+    return GameData.get_normalized_data() 
+
+def get_action(action):
+    return action 
+
+def calculate_reward():
+    if Score.points > GameData.HIGHEST_SCORE: 
+        GameData.HIGHEST_SCORE = Score.points
+        return 10 
+
+    return -10
+
+def check_game_done(): 
+    for obstacle in obstacles:
+        if player.sprite_rect.colliderect(obstacle.rect):
+            calculate_reward()
+            return True 
+    
+    return False 
+
+# Entry point for RL training
+if __name__ == "__main__":
+    train_rl()
