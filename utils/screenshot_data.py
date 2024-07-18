@@ -104,53 +104,36 @@ monitor = [
 counter = 0
 
 
-active_window_title = get_active_window_title()
-while active_window_title != window_title:
-    sleep(0.01)
-    counter += 1
-    if (counter % 100) == 0: print('Please Open Your Screenshot Window')
+if __name__ == '__main__':
+
     active_window_title = get_active_window_title()
+    while active_window_title != window_title:
+        sleep(0.01)
+        counter += 1
+        if (counter % 100) == 0: print('Please Open Your Screenshot Window')
+        active_window_title = get_active_window_title()
 
-# Add an interval for reaction time
-sleep(3)
+    # Add an interval for reaction time
+    sleep(3)
 
-# Main logic
-if active_window_title == window_title:
-    num_threads = 10  # Adjust based on how many threads you want to use
-    sleep_interval = 0.1  # The sleep interval for all threads4
+    # Main logic
+    if active_window_title == window_title:
+        num_threads = 10  # Adjust based on how many threads you want to use
+        sleep_interval = 0.1  # The sleep interval for all threads4
 
-    sct = mss.mss()
+        sct = mss.mss()
+        
+        Threading = Screenshot(10, 0.1)
+        Threading.start()
 
-    t = time.time()
-    output = np.append(
-        np.append(
-            get_window_greyscale(mon=monitor[0], sct=sct, h=height, w=width),
-            get_window_greyscale(mon=monitor[1], sct=sct, h=height, w=width)),
-        get_window_greyscale(mon=monitor[2], sct=sct, h=height, w=width)
-    )
-    t = time.time() - t
-    print(t)
-    Threading = Screenshot(10, 0.1)
-    Threading.start()
-
-    # Example of running threads for a certain period or condition
-    try:
-        while True:
-            # Update `active_window_title` if needed
-            active_window_title = get_active_window_title()
-            if active_window_title != window_title:
-                break
-    finally:
-        t = time.time()
-        output = np.append(
-            np.append(
-                get_window_greyscale(mon=monitor[0], sct=sct, h=height, w=width),
-                get_window_greyscale(mon=monitor[1], sct=sct, h=height, w=width)),
-            get_window_greyscale(mon=monitor[2], sct=sct, h=height, w=width)
-        )
-
-        t = time.time() - t
-        # Stop threads gracefully
-        Threading.stop()
-        print(t)
-        print("Threads have been stopped.")
+        # Example of running threads for a certain period or condition
+        try:
+            while True:
+                # Update `active_window_title` if needed
+                active_window_title = get_active_window_title()
+                if active_window_title != window_title:
+                    break
+        finally:
+            # Stop threads gracefully
+            Threading.stop()
+            print("Threads have been stopped.")
