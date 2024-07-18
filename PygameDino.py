@@ -258,9 +258,9 @@ def add_obstacles():
             else:
                 obstacles.append(Bird())
 
-FPS = 60
+FPS = 20
 
-def reset_enviorment() -> None: 
+def start_enviorment() -> None: 
     global clock, player, cloud, background, game_data
     clock = pygame.time.Clock()
     player = Dinosaur()
@@ -313,3 +313,35 @@ def main() -> None:
 
         clock.tick(FPS)
         pygame.display.update()
+
+class GameData(): 
+    
+    def __init__(self): 
+        self.DISTANCES = [] 
+        self.OBSTACLE_HEIGHTS = [] 
+        self.GAME_SPEEDS = [] 
+    
+    def update(self) -> None: 
+        self.DISTANCES.append(self.get_distances())
+        self.OBSTACLE_HEIGHTS.append(self.get_obstacle_heights())
+        self.GAME_SPEEDS.append(Score.game_speed)
+
+    def get_normalizes_data(self) -> tuple[float]: 
+        return GameData.min_max_normalize_collection(self.DISTANCES + self.OBSTACLE_HEIGHTS + self.GAME_SPEEDS)
+    
+    def get_distances(self) -> tuple[float]: 
+        return (abs(player.sprite_rect.x - obstacle.rect.x) for obstacle in obstacles)
+        
+    def get_obstacle_heights(self) -> tuple[float]: 
+        return (obstacle.rect.height for obstacle in obstacles)  
+    
+    @classmethod
+    def min_max_normalize(cls, number, minimum_value, maximum_value) -> float:
+        return (number - minimum_value) / (maximum_value - minimum_value)
+    
+    @classmethod
+    def min_max_normalize_collection(cls, collection) -> tuple[float]: 
+        min_value = min(collection)
+        max_value = max(collection)
+        return (GameData.min_max_normalize(value, min_value, max_value) for value in collection)
+
