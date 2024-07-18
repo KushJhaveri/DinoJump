@@ -150,7 +150,7 @@ class Score:
 
     @classmethod
     def reset(cls):
-        cls.game_speed = 10
+        cls.game_speed = Score.STARTING_GAME_SPEED
         cls.points = 0
 
     @classmethod
@@ -261,13 +261,14 @@ def add_obstacles():
 FPS = 20
 
 def start_enviorment() -> None: 
-    global clock, player, cloud, background, game_data
+    global clock, player, cloud, background, game_data, get_normalized_data
     clock = pygame.time.Clock()
     player = Dinosaur()
     cloud = Cloud()
     background = Background()
     Score.reset()
     game_data = GameData()
+    get_normalized_data = False 
 
 def main() -> None:
     run = True
@@ -280,6 +281,7 @@ def main() -> None:
     Score.reset()
     obstacles = []
     game_data.__init__()
+    get_normalized_data = False 
 
     while run:
         for event in pygame.event.get():
@@ -308,11 +310,14 @@ def main() -> None:
             obstacle.update()
             if player.sprite_rect.colliderect(obstacle.rect):
                 death_count += 1
-                game_data.normalize_data()
+                get_normalized_data = True 
                 run = False 
 
         clock.tick(FPS)
         pygame.display.update()
+
+start_enviorment()
+main() 
 
 class GameData(): 
     
@@ -344,4 +349,3 @@ class GameData():
         min_value = min(collection)
         max_value = max(collection)
         return (GameData.min_max_normalize(value, min_value, max_value) for value in collection)
-
